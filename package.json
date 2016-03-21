@@ -3,12 +3,8 @@
   "version": "1.0.0",
   "description": "just my building system",
   "main": "gulpfile.js",
-  "directories": {
-
-  },
-  "scripts": {
-
-  },
+  "directories": {},
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/meff34/gulp.git"
