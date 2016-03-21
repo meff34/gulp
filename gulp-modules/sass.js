@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
 var GLP = require('gulp-load-plugins')();
 var gulp = require('gulp');
 
 module.exports = function(options) {
-    var tools = {
-        configAutoprefixer: {
+    var config = {
+        autoprefixer: {
             browsers: ['last 8 versions'],
             cascade: true
         }
@@ -30,7 +30,7 @@ module.exports = function(options) {
                 })
             )
             .pipe(GLP.importCss())
-            .pipe(GLP.autoprefixer(tools.configAutoprefixer))
+            .pipe(GLP.autoprefixer(config.autoprefixer))
             .pipe(GLP.concatUtil.header('/* !!! WARNING !!! \nThis file is auto-generated. \nDo not edit it or else you will lose changes next time you compile! */\n\n'))
             .pipe(GLP.if(
                 (options.minify),

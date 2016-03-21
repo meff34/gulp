@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
 var GLP = require('gulp-load-plugins')();
 var gulp = require('gulp');
 
 module.exports = function(options) {
-    var tools = {
-        configSvg: {
+    var config = {
+        svg: {
             mode: {
                 symbol: {
                     dest: './',
@@ -26,7 +26,7 @@ module.exports = function(options) {
                     this.emit('end');
                 }
             }))
-            .pipe(GLP.svgSprite(tools.configSvg))
+            .pipe(GLP.svgSprite(config.svg))
             .pipe(GLP.if('sprite.svg', gulp.dest(options.dst), gulp.dest(options.examplePath)))
             .pipe(GLP.notify(({message: 'task ' + options.taskname + ' is complited', onLast: true})));
     };
