@@ -3,3 +3,8 @@
 
 # node
 /node_modules
+
+# gulp results
+/backend
+/frontend/web/dist
+/frontend/web/temp
