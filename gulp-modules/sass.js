@@ -8,6 +8,20 @@ module.exports = function(options) {
         autoprefixer: {
             browsers: ['last 8 versions'],
             cascade: true
+        },
+        pxtorem: {
+            rootValue: 10,
+            unitPrecision: 5,
+            propWhiteList: [
+                'font',
+                'font-size',
+                'line-height',
+                'letter-spacing'
+            ],
+            selectorBlackList: [],
+            replace: true,
+            mediaQuery: false,
+            minPixelValue: 0
         }
     };
     return function() {
@@ -32,6 +46,7 @@ module.exports = function(options) {
             .pipe(GLP.importCss())
             .pipe(GLP.autoprefixer(config.autoprefixer))
             .pipe(GLP.concatUtil.header('/* !!! WARNING !!! \nThis file is auto-generated. \nDo not edit it or else you will lose changes next time you compile! */\n\n'))
+            .pipe(GLP.pxtorem(config.pxtorem))
             .pipe(GLP.if(
                 (options.minify),
                 GLP.minifyCss()
