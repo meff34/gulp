@@ -1,80 +1,100 @@
 'use strict';
 
-//TODO: helper for svgSprite
+/* TODO: helper for svgSprite */
+/* TODO: issue: таски перестали заканчиваться! */
+
 var gulp = require('gulp');
+var del = require('del');
+var path = require('path');
 
-function lazyTask(taskName, path, options) {
-    options = options || {};
-    options.taskname = taskName;
-    gulp.task(taskName, function(callback) {
-        var task = require(path).call(this, options);
-
-        return task(callback);
-    })
-};
+var helper = require('./gulp-modules/helper.js');
 
 var paths = {
-    base: 'frontend/web/'
+    frontBase: 'frontend/web/',
+    backBase: 'backend/web/'
 };
 
 gulp.task('watch', function(){
     gulp.watch(
-        paths.base + 'dev/sass/**/*.{sass,css}',
+        paths.frontBase + 'dev/sass/**/*.{sass,css}',
         ['sass:frontend']
     );
     gulp.watch(
-        paths.base + 'dev/sass/content-design.sass',
+        paths.frontBase + 'dev/sass/content-design.sass',
         ['sass:backend']
     );
-    // gulp.watch(
-    //     paths.base + 'dev/fonts/*.{eot,svg,ttf,woff,woff2}',
-    //     ['copy:fonts']
-    // );
     gulp.watch(
-        paths.base + 'dev/icons/*.svg',
+        paths.frontBase + 'dev/icons/*.svg',
         ['svg:sprite']
     );
+    gulp.watch(
+        paths.frontBase + 'dev/icons/*.svg',
+        ['svg:sprite']
+    );
+    gulp.watch(
+        paths.backBase + 'dev/images/**/*.*',
+        ['imagemin:backend']
+    );
+    gulp.watch(
+        paths.frontBase + 'dev/images/**/*.*',
+        ['imagemin:frontend']
+    );
+    helper.deleteListener(
+        paths.frontBase + 'dev/images/**/*.*',
+        ['imagemin:frontend']
+    )
 });
+
+
 
 gulp.task('default', [
     'watch',
     'sass:frontend',
     'sass:backend',
-    'copy:fonts',
     'svg:sprite'
 ]);
 
-lazyTask('sass:frontend', './gulp-modules/sass', {
+helper.lazyTask('sass:frontend', './sass', {
     src: 'frontend/web/dev/sass/main.sass',
     dst: 'frontend/web/dist/css',
     newName: undefined,
-    minify: false,
-    maps: true
+    minify: false
 });
 
-lazyTask('sass:backend', './gulp-modules/sass', {
+helper.lazyTask('sass:backend', './sass', {
     src: 'frontend/web/dev/sass/content-design.sass',
     dst: 'backend/web/dist/css',
     newName: undefined,
-    minify: true,
-    maps: false
+    minify: false
 });
 
-lazyTask('clean', './gulp-modules/clean', [
+helper.lazyTask('clean', './clean', [
     'frontend/web/dist/css',
     'frontend/web/dist/fonts',
     'backend/web/dist/css',
     'frontend/web/dist/sprite',
-    'frontend/web/temp'
+    'frontend/web/temp',
+    'frontend/web/dist/images'
 ]);
 
-lazyTask('svg:sprite', './gulp-modules/svg-sprite', {
+helper.lazyTask('svg:sprite', './svg-sprite', {
     src: 'frontend/web/dev/icons/*.svg',
     dst: 'frontend/web/dist/sprite',
     examplePath: 'frontend/web/temp'
 });
 
-lazyTask('copy:fonts', './gulp-modules/copy', {
-    src: 'frontend/web/dev/fonts/*.{eot,svg,ttf,woff,woff2}',
-    dst: 'frontend/web/dist/fonts'
+helper.lazyTask('imagemin:frontend', './imagemin', {
+    src: [
+        'frontend/web/dev/temp-images/**/*.*',
+        'frontend/web/dev/images/**/*.*'
+    ],
+    dst: 'frontend/web/dist/images'
 });
+
+/*TODO: не забудь поменять dst в новом проекте!!!*/
+helper.lazyTask('imagemin:backend', './imagemin', {
+    src: 'backend/web/dev/images/**/*.*',
+    dst: 'backend/web/images'
+});
+
+helper.deleteListener();

@@ -1,24 +1,36 @@
-'use strict';
+"use strict";
 
 var GLP = require('gulp-load-plugins')();
 var gulp = require('gulp');
 
 module.exports = function(options) {
-    var config = {
-        autoprefixer: {
-            browsers: ['last 8 versions'],
+    var tools = {
+        configAutoprefixer: {
+            browsers: ['last 5 versions'],
             cascade: true
         },
-        pxtorem: {
+        configPxtorem: {
             rootValue: 10,
             unitPrecision: 5,
             propWhiteList: [
                 'font',
                 'font-size',
                 'line-height',
-                'letter-spacing'
+                'letter-spacing',
+                'margin',
+                'margin-top',
+                'margin-right',
+                'margin-bottom',
+                'margin-left',
+                'padding',
+                'padding-top',
+                'padding-right',
+                'padding-bottom',
+                'padding-left'
             ],
-            selectorBlackList: [],
+            selectorBlackList: [
+                'html'
+            ],
             replace: true,
             mediaQuery: false,
             minPixelValue: 0
@@ -32,21 +44,18 @@ module.exports = function(options) {
                     this.emit('end');
                 }
             }))
-            .pipe(GLP.if(
-                (options.maps),
-                GLP.sourcemaps.init()
-            ))
+            .pipe(GLP.sourcemaps.init())
             .pipe(GLP.sass({
-                    outputStyle: 'nested',
+                    outputStyle: 'nested'
                 })
                 .on('error', function (e) {
                     return GLP.notify().write(e);
                 })
             )
             .pipe(GLP.importCss())
-            .pipe(GLP.autoprefixer(config.autoprefixer))
+            .pipe(GLP.autoprefixer(tools.configAutoprefixer))
             .pipe(GLP.concatUtil.header('/* !!! WARNING !!! \nThis file is auto-generated. \nDo not edit it or else you will lose changes next time you compile! */\n\n'))
-            .pipe(GLP.pxtorem(config.pxtorem))
+            .pipe(GLP.pxtorem(tools.configPxtorem))
             .pipe(GLP.if(
                 (options.minify),
                 GLP.minifyCss()
@@ -55,10 +64,7 @@ module.exports = function(options) {
                 (options.newName !== undefined),
                 GLP.rename(options.newName)
             ))
-            .pipe(GLP.if(
-                (options.maps),
-                GLP.sourcemaps.write('./maps')
-            ))
+            .pipe(GLP.sourcemaps.write('./maps'))
             .pipe(gulp.dest(options.dst))
             .pipe(GLP.notify(({message: 'task ' + options.taskname + ' is complited', onLast: true})));
     };
