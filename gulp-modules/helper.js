@@ -1,5 +1,10 @@
 "use strict";
 
+/*
+* TODO: resolve trouble with deleting watching directory
+* https://github.com/nodejs/node-v0.x-archive/issues/4337
+*/
+
 var helper = {};
 var gulp = require('gulp');
 var path = require('path');
@@ -15,18 +20,13 @@ helper.lazyTask = function(taskName, path, options){
     })
 };
 
-/*TODO: решить проблему с путями*/
-
-helper.deleteListener = function (src, task) {
-    var watcher = gulp.watch(src, task);
+helper.deleteListener = function (src, dst) {
+    var watcher = gulp.watch(src);
 
     watcher.on('change', function (event) {
         if (event.type === 'deleted') {
-            console.log(event);
-            var filePathFromSrc = path.relative(path.resolve('c:/openserver/domains/barbers/frontend/web/dev/images'), event.path);
-            console.log('\n' + filePathFromSrc);
-            var destFilePath = path.resolve('c:/openserver/domains/barbers/frontend/web/dist/images', filePathFromSrc);
-            console.log('\n' + destFilePath);
+            var filePathFromSrc = path.relative(path.resolve(src), event.path);
+            var destFilePath = path.resolve(dst, filePathFromSrc);
             del(destFilePath);
         }
     });

@@ -31,21 +31,32 @@ gulp.task('watch', function(){
         paths.frontBase + 'dev/icons/*.svg',
         ['svg:sprite']
     );
+    
+    
     gulp.watch(
         paths.backBase + 'dev/images/**/*.*',
         ['imagemin:backend']
     );
     gulp.watch(
-        paths.frontBase + 'dev/images/**/*.*',
+        [
+            paths.frontBase + 'dev/images/**/*.*',
+            paths.frontBase + 'dev/temp-images/**/*.*'
+        ],
         ['imagemin:frontend']
     );
     helper.deleteListener(
         paths.frontBase + 'dev/images/**/*.*',
-        ['imagemin:frontend']
-    )
+        paths.frontBase + 'dist/images/**/*.*'
+    );
+    helper.deleteListener(
+        paths.frontBase + 'dev/temp-images/**/*.*',
+        paths.frontBase + 'dist/images/**/*.*'
+    );
+    helper.deleteListener(
+        'backend/web/dev/images/**/*.*',
+        'backend/web/images'
+    );
 });
-
-
 
 gulp.task('default', [
     'watch',
