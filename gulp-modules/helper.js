@@ -1,7 +1,7 @@
 "use strict";
 
 /*
-* TODO: resolve trouble with deleting watching directory
+* TODO: resolve trouble with deleting on watching directory
 * https://github.com/nodejs/node-v0.x-archive/issues/4337
 */
 

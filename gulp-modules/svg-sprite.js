@@ -2,6 +2,7 @@
 
 var GLP = require('gulp-load-plugins')();
 var gulp = require('gulp');
+var combiner = require('stream-combiner2').obj;
 
 module.exports = function(options) {
     var tools = {
@@ -18,16 +19,17 @@ module.exports = function(options) {
             }
         }
     };
+
     return function() {
-        return gulp.src(options.src)
-            .pipe(GLP.plumber({
-                errorHandler: function (err) {
-                    console.log(err);
-                    this.emit('end');
-                }
-            }))
-            .pipe(GLP.svgSprite(tools.configSvg))
-            .pipe(GLP.if('sprite.svg', gulp.dest(options.dst), gulp.dest(options.examplePath)))
-            .pipe(GLP.notify(({message: 'task ' + options.taskname + ' is complited', onLast: true})));
+        return combiner(
+            gulp.src(options.src),
+            GLP.svgSprite(tools.configSvg),
+            GLP.if('sprite.svg', gulp.dest(options.dst), gulp.dest(options.examplePath))
+        ).on('error', GLP.notify.onError(function (err) {
+            return {
+                title: options.taskname,
+                message: err.message
+            };
+        }));
     };
 }

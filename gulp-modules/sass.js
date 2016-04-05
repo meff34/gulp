@@ -2,6 +2,7 @@
 
 var GLP = require('gulp-load-plugins')();
 var gulp = require('gulp');
+var combiner = require('stream-combiner2').obj;
 
 module.exports = function(options) {
     var tools = {
@@ -36,36 +37,35 @@ module.exports = function(options) {
             minPixelValue: 0
         }
     };
+   
     return function() {
-        return gulp.src(options.src)
-            .pipe(GLP.plumber({
-                errorHandler: function (err) {
-                    console.log(err);
-                    this.emit('end');
-                }
-            }))
-            .pipe(GLP.sourcemaps.init())
-            .pipe(GLP.sass({
-                    outputStyle: 'nested'
-                })
-                .on('error', function (e) {
-                    return GLP.notify().write(e);
-                })
-            )
-            .pipe(GLP.importCss())
-            .pipe(GLP.autoprefixer(tools.configAutoprefixer))
-            .pipe(GLP.concatUtil.header('/* !!! WARNING !!! \nThis file is auto-generated. \nDo not edit it or else you will lose changes next time you compile! */\n\n'))
-            .pipe(GLP.pxtorem(tools.configPxtorem))
-            .pipe(GLP.if(
+        return combiner(
+            gulp.src(options.src),
+            GLP.sourcemaps.init(),
+            GLP.sass({
+                outputStyle: 'nested'
+            }),
+            GLP.importCss(),
+            GLP.autoprefixer(tools.configAutoprefixer),
+            GLP.concatUtil.header('/* This file is generated — do not edit by hand! */\n'),
+            GLP.pxtorem(tools.configPxtorem),
+            GLP.if(
                 (options.minify),
                 GLP.minifyCss()
-            ))
-            .pipe(GLP.if(
+            ),
+            GLP.if(
                 (options.newName !== undefined),
                 GLP.rename(options.newName)
-            ))
-            .pipe(GLP.sourcemaps.write('./maps'))
-            .pipe(gulp.dest(options.dst))
-            .pipe(GLP.notify(({message: 'task ' + options.taskname + ' is complited', onLast: true})));
+            ),
+            GLP.sourcemaps.write('./maps'),
+            gulp.dest(options.dst)
+        ).on('error', GLP.notify.onError(function (err) {
+            return {
+                title: options.taskname,
+                message: err.message
+            };
+        }));
     };
-}
+};
+
+//
