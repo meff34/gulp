@@ -17,13 +17,19 @@ module.exports = function(options) {
                     render: {}
                 }
             }
+        },
+        configImagemin: {
+            svgoPlugins: [
+                {removeViewBox: true},
+                {cleanupIDs: false}
+            ]
         }
     };
-
     return function() {
         return combiner(
             gulp.src(options.src),
             GLP.svgSprite(tools.configSvg),
+            // GLP.if((options.isProduction), GLP.imagemin(tools.configImagemin)),
             GLP.if('sprite.svg', gulp.dest(options.dst), gulp.dest(options.examplePath))
         ).on('error', GLP.notify.onError(function (err) {
             return {

@@ -2,9 +2,11 @@
 
 var GLP = require('gulp-load-plugins')();
 var gulp = require('gulp');
+var chalk = require('chalk');
 var combiner = require('stream-combiner2').obj;
 
 module.exports = function(options) {
+    
     var tools = {
         configAutoprefixer: {
             browsers: ['last 5 versions'],
@@ -35,13 +37,20 @@ module.exports = function(options) {
             replace: true,
             mediaQuery: false,
             minPixelValue: 0
+        },
+        configCsso: {
+            restructure: true,
+            debug: false
+        },
+        configSass: {
+            outputStyle: 'nested'
         }
     };
-   
+
     return function() {
         return combiner(
             gulp.src(options.src),
-            GLP.sourcemaps.init(),
+            GLP.if((!options.isProduction), GLP.sourcemaps.init()),
             GLP.sass({
                 outputStyle: 'nested'
             }),
@@ -50,14 +59,10 @@ module.exports = function(options) {
             GLP.concatUtil.header('/* This file is generated — do not edit by hand! */\n'),
             GLP.pxtorem(tools.configPxtorem),
             GLP.if(
-                (options.minify),
-                GLP.minifyCss()
+                (options.isProduction),
+                GLP.csso(tools.configCsso)
             ),
-            GLP.if(
-                (options.newName !== undefined),
-                GLP.rename(options.newName)
-            ),
-            GLP.sourcemaps.write('./maps'),
+            GLP.if((!options.isProduction), GLP.sourcemaps.write('./maps')),
             gulp.dest(options.dst)
         ).on('error', GLP.notify.onError(function (err) {
             return {
@@ -67,5 +72,3 @@ module.exports = function(options) {
         }));
     };
 };
-
-//
